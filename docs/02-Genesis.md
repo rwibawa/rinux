@@ -7,7 +7,9 @@ $ sudo apt-get install -y bochs bochs-x
 ```
 
 Then start the win10 XLaunch that accepts all connections.
+
 ![XLaunch](./img/02-genesis-XLaunch.jpg)
+
 ```sh
 ~$ cd src
 /src$ nasm -f elf64 boot.s
@@ -86,6 +88,10 @@ The **bochs** stop the _debugger_ because there were some errors. Type in `cont`
 <bochs:1> cont
 ```
 
+It will boot the _kernel_:
+
+![the kernel](./img/02-genesis-bochs_03.jpg)
+
 Then press `ctrl-C` to stop it:
 ```sh
 ^CNext at t=11209119269
@@ -97,9 +103,11 @@ $ sudo /sbin/losetup -d /dev/loop0
 ```
 
 If there is any problem with the kernel, it won't start:
+
 ![Error 13: Invalid or unsupported executable format](./img/02-genesis-bochs_02.jpg)
 
 Return to the **GRUB** boot loader and try to edit it:
+
 ![GRUB](./img/02-genesis-bochs_01.jpg)
 
 ## 2.1. The boot code
@@ -191,15 +199,15 @@ Do just that. The MBOOT_* constants are defined above.
 
 - **MBOOT_CHECKSUM**
   This field is defined such that when the magic number, the flags and
-this are added together, the total must be zero. It is for error checking.
+  this are added together, the total must be zero. It is for error checking.
 
 - **mboot**
   The address of the structure that we are currently writing. GRUB uses
-this to tell if we are expecting to be relocated.
+  this to tell if we are expecting to be relocated.
 
 - **code,bss,end,start**
   These symbols are all defined by the linker. We use them to tell GRUB
-where the different sections of our kernel can be located.
+  where the different sections of our kernel can be located.
 
 On bootup, GRUB will load a pointer to another information structure into the EBX register. This can be used to query the environment GRUB set up for us.
 
