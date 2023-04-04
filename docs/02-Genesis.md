@@ -12,9 +12,9 @@ Then start the win10 XLaunch that accepts all connections.
 
 ```sh
 ~$ cd src
-/src$ nasm -f elf64 boot.s
-/src$ gcc -nostdlib -nostdinc -fno-builtin -fno-stack-protector -c -o main.o main.c
-/src$ ld -Tlink.ld -o kernel boot.o main.o
+/src$ nasm -f elf32 boot.s
+/src$ gcc -nostdlib -nostdinc -fno-builtin -fno-stack-protector -m32 -c -o main.o main.c
+/src$ ld -Tlink.ld -m elf_i386 -o kernel boot.o main.o
 /src$ ll
 total 64
 drwxr-xr-x 2 ryan ryan  4096 Apr  3 16:12 ./
@@ -41,6 +41,7 @@ drwxr-xr-x  3 root root  1024 Dec 28  2006 boot/
 -rwxr-xr-x  1 root root 13792 Apr  3 16:17 kernel*
 drwx------  2 root root 12288 Dec 28  2006 lost+found/
 
+$ sudo umount /dev/loop0
 $ sudo bochs -f bochsrc.txt
 ========================================================================
                        Bochs x86 Emulator 2.6.11
@@ -98,7 +99,6 @@ Then press `ctrl-C` to stop it:
 (0) [0x000000100027] 0008:0000000000100027 (unk. ctxt): jmp .-2 (0x00100027)      ; ebfe
 <bochs:2> quit
 (0).[11209119269] [0x000000100027] 0008:0000000000100027 (unk. ctxt): jmp .-2 (0x00100027)      ; ebfe
-$ sudo umount /dev/loop0
 $ sudo /sbin/losetup -d /dev/loop0
 ```
 

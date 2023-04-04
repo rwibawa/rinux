@@ -1,6 +1,7 @@
 log: bochsout.log
 megs: 32
 romimage: file=/usr/share/bochs/BIOS-bochs-latest, options=fastboot
+vgaromimage: file=/usr/share/bochs/VGABIOS-lgpl-latest
 floppya: 1_44=/dev/loop0, status=inserted
 boot: a
 mouse: enabled=0
