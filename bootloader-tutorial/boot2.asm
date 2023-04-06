@@ -12,7 +12,7 @@ main:           ; Label for the start of the main program
  mov si, HelloWorld     ; Load the string into position for the procedure.
  call PutStr    ; Call/start the procedure
 
-jmp $           ; Never ending loop
+ jmp $           ; Never ending loop
 
 ; Procedures
 PutStr:         ; Procedure label/start

@@ -26,6 +26,7 @@ In decimal it is loaded to 31744 (I think) Why is this? Well the computer has a 
 ## INT 0x10:
 INT 0x10 is the BIOS video interrupt. All the display related calls (in theory) are made through this interrupt.
 So how do you use it? Well you have to have certain values in certain registers to use it.
+
   **AH** - 0x0E AL - ASCII character to display
 
   **BH** - Page number (For most of our work this will remain 0x00)
@@ -157,10 +158,14 @@ But this isn't exactly useful as you would be coding for hours on end with an AS
 ### Run it with `qemu`
 ```sh
 $ nasm -o boot.o boot1.asm
+$ ll ./boot.o 
+-rw-r--r-- 1 ryan ryan 512 Apr  5 20:59 ../boot.o
+
 $ qemu-system-i386 -drive format=raw,file=boot.o
 ```
 
 Output:
+
 ![Bootloader - A](../docs/img/bootloader-A.jpg)
 
 ## Storing data:
@@ -284,6 +289,96 @@ $ qemu-system-i386 -drive format=raw,file=boot.o
 ```
 
 Output:
+
 ![Bootloader - Hello World](../docs/img/bootloader-Hello_World.jpg)
 
+
+Disassembled of `boot1.asm` (0x1D - 0x27 is 'Hello World'):
+
+```asm
+00000000  B80000            mov ax,0x0          ; start at 0x7C00
+00000003  8ED8              mov ds,ax
+00000005  BE1D7C            mov si,0x7c1d
+00000008  E80200            call 0xd
+0000000B  EBFE              jmp short 0xb
+0000000D  B40E              mov ah,0xe
+0000000F  B700              mov bh,0x0
+00000011  B307              mov bl,0x7
+00000013  AC                lodsb
+00000014  08C0              or al,al
+00000016  7404              jz 0x1c
+00000018  CD10              int 0x10
+0000001A  EBF7              jmp short 0x13
+0000001C  C3                ret
+0000001D  48                dec ax
+0000001E  656C              gs insb
+00000020  6C                insb
+00000021  6F                outsw
+00000022  20576F            and [bx+0x6f],dl
+00000025  726C              jc 0x93
+00000027  640D0A00          fs or ax,0xa
+0000002B  0000              add [bx+si],al
+
+;...
+
+000001FB  0000              add [bx+si],al
+000001FD  0055AA            add [di-0x56],dl
+
+```
+
 The last bit was a bit of a jump with loops and things there. So if you want to go back and look at that last section again, please do, you need to be able to understand this before moving on.
+
+
+# Bootloader with GNU Assembler (GAS)
+
+```sh
+$ as --32 -o boot.o -c boot3.asm 
+$ ld -m elf_i386 -o bootsect.bin boot.o -Ttext 0x7C00 --oformat=binary
+$ ll bootsect.bin 
+-rwxr-xr-x 1 ryan ryan 512 Apr  5 23:03 bootsect.bin*
+$ qemu-system-i386 -drive format=raw,file=bootsect.bin
+```
+
+Output:
+
+![Bootloader with GAS](../docs/img/bootloader-Hello_Ryan!.jpg)
+
+Disassembled of `boot3.asm` (0x2B - 0x35 is 'Hello Ryan!'):
+
+```asm
+00000000  FA                cli
+00000001  8CC8              mov ax,cs
+00000003  8ED8              mov ds,ax
+00000005  8EC0              mov es,ax
+00000007  8EE0              mov fs,ax
+00000009  8EE8              mov gs,ax
+0000000B  8ED0              mov ss,ax
+0000000D  BC0030            mov sp,0x3000
+00000010  8816387C          mov [0x7c38],dl
+00000014  FB                sti
+00000015  BE2B7C            mov si,0x7c2b
+00000018  E80200            call 0x1d
+0000001B  EBFE              jmp short 0x1b
+0000001D  30FF              xor bh,bh
+0000001F  B40E              mov ah,0xe
+00000021  AC                lodsb
+00000022  3C00              cmp al,0x0
+00000024  7404              jz 0x2a
+00000026  CD10              int 0x10
+00000028  EBF3              jmp short 0x1d
+0000002A  C3                ret
+0000002B  48                dec ax
+0000002C  656C              gs insb
+0000002E  6C                insb
+0000002F  6F                outsw
+00000030  205279            and [bp+si+0x79],dl
+00000033  61                popa
+00000034  6E                outsb
+00000035  210A              and [bp+si],cx
+00000037  0000              add [bx+si],al
+
+;...
+
+000001FB  0000              add [bx+si],al
+000001FD  0055AA            add [di-0x56],dl
+```
