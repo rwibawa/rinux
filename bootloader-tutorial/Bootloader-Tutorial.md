@@ -295,6 +295,10 @@ Output:
 
 Disassembled of `boot1.asm` (0x1D - 0x27 is 'Hello World'):
 
+```sh
+$ ndisasm -b 16 ./boot.o > boot1-dis.asm
+```
+
 ```asm
 00000000  B80000            mov ax,0x0          ; start at 0x7C00
 00000003  8ED8              mov ds,ax
@@ -410,6 +414,11 @@ Output:
 ![Bootloader with GAS](../docs/img/bootloader-Hello_Ryan!.jpg)
 
 Disassembled of `boot3.asm` (0x2B - 0x35 is 'Hello Ryan!'):
+```sh
+$ ndisasm -b 16 ./bootsect.bin > boot3-dis.asm
+```
+
+`boot3-dis.asm`
 
 ```asm
 00000000  FA                cli
@@ -448,3 +457,59 @@ Disassembled of `boot3.asm` (0x2B - 0x35 is 'Hello Ryan!'):
 000001FB  0000              add [bx+si],al
 000001FD  0055AA            add [di-0x56],dl
 ```
+
+
+## Master Boot Sector
+
+Get the _master boot sector of the floppy disk image that contains *GRUB*:
+
+```sh
+$ sudo /sbin/losetup /dev/loop0 floppy.img
+$ dd if=./mbr-grub.bak of=/dev/loop0 bs=512 count=1
+$ sudo /sbin/losetup -d /dev/loop0
+$ ll mbr-grub.bak 
+-rw-r--r-- 1 ryan ryan 512 Apr  6 13:44 mbr-grub.bak
+```
+
+
+## Create floppy disk image with `bochs`:
+
+### 1. Start `bochs` without bootable disk, and _continue_:
+
+![Start `bochs` without bootable disk](../docs/img/bootloader-bochs-no-bootable-disk.jpg)
+
+### 2. Click *Floppy Disk A* and click _Create Image_ button:
+
+![`bochs` - create disk image](../docs/img/bootloader-bochs-create-image-floppy-disk.jpg)
+
+
+## Create **GRUB** floppy disk image (*floppy.img*):
+
+```sh
+$ sudo /sbin/losetup /dev/loop0 floppy.img
+$ mke2fs /dev/loop0
+$ dd if=./mbr-grub.bak of=/dev/loop0 bs=512 count=1
+$ sudo mount /dev/loop0 /mnt2
+$ sudo cp -r bootloader-tutorial/boot /mnt2/
+$ sudo /sbin/losetup -d /dev/loop0
+```
+
+## Configure `bochs` to use the disk image:
+
+### 1. Start `bochs`. Then select **Disk & Boot** from the _Edit Options_. Then click the _Edit_ button:
+
+![Configure `bochs`](../docs/img/bootloader-bochs-edit-disk-and-boot.jpg)
+
+### 2. Select _Floppy Options_ tab, set the _Type of Floppy Drive_, browse the disk image, then set the _Status_ to **inserted**.
+
+![Configure `bochs`](../docs/img/bootloader-bochs-disk-options.jpg)
+
+### 3. Click _OK_ button, then start the simulation.
+
+
+## Install `bochs` for windows
+
+Go to _sourceforge_ to download ([bochs 2.7 - https://sourceforge.net/projects/bochs/files/bochs/2.7/](https://sourceforge.net/projects/bochs/files/bochs/2.7/)).
+Select **Bochs-win64-2.7.exe**. Then run the installer.
+
+![`bochs` download](../docs/img/bootloader-bochs-download.jpg)
