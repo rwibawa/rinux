@@ -1,4 +1,4 @@
-# The Screen
+# 3. The Screen
 
 So, now that we have a 'kernel' that can run and stick itself into an infinite loop, it's time to get something interesting appearing on the screen. Along with serial I/O, the monitor will be your most important ally in the debugging battle.
 
