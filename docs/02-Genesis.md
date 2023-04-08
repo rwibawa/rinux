@@ -114,7 +114,7 @@ Return to the **GRUB** boot loader and try to edit it:
 OK, It's time for some code! Although the brunt of our kernel will be written in C, there are certain things we just must use assembly for. One of those things is the initial boot code.
 
 Here we go:
-```asm
+```x86asm
 ;
 ; boot.s -- Kernel start location. Also defines multiboot header.
 ; Based on Bran's kernel development tutorial file start.asm
@@ -164,7 +164,7 @@ start:
 
 ## 2.2. Understanding the boot code
 There's actually only a few lines of code in that snippet:
-```asm
+```x86asm
 push ebx
 cli
 call main
@@ -179,7 +179,7 @@ Know exactly what environment the kernel wants/needs when it boots.
 Allow the kernel to query the environment it is in.
 So, for example, if your kernel needs to be loaded in a specific VESA mode (which is a bad idea, by the way), you can inform the bootloader of this, and it can take care of it for you.
 To make your kernel multiboot compatible, you need to add a header structure somewhere in your kernel (Actually, the header must be in the first 4KB of the kernel). Usefully, there is a NASM command that lets us embed specific constants in our code - 'dd'. These lines:
-```asm
+```x86asm
 dd MBOOT_HEADER_MAGIC
 dd MBOOT_HEADER_FLAGS
 dd MBOOT_CHECKSUM
@@ -227,7 +227,7 @@ The return value of a function is returned in EAX.
 d = func(a, b, c);
 ```
 Becomes:
-```asm
+```x86asm
 push [c]
 push [b]
 push [a]

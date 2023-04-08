@@ -30,7 +30,7 @@ In the x86, we have 6 segmentation registers. Each holds an offset into the GDT.
 ### 4.2.1. descriptor_tables.h
 A GDT entry looks like this:
 
-```asm
+```c
 // This structure contains the value of one GDT entry.
 // We use the attribute 'packed' to tell GCC not to change
 // any of the alignment in the structure.
@@ -50,29 +50,29 @@ Granularity byte formatMost of those fields should be self-explanatory. The form
 
 ![Access byte format](../docs/img/04-gdt_idt-access-byte-format.png)
 
-**P**
-    Is segment present? (1 = Yes)
-**DPL**
-    Descriptor privilege level - Ring 0 - 3.
-**DT**
-    Descriptor type
-**Type**
-    Segment type - code segment / data segment.
+* **P**
+   Is segment present? (1 = Yes)
+* **DPL**
+   Descriptor privilege level - Ring 0 - 3.
+* **DT**
+   Descriptor type
+* **Type**
+   Segment type - code segment / data segment.
 
 ![Granularity byte format](../docs/img/04-gdt_idt-granularity-byte-format.png)
 
-**G**
-    Granularity (0 = 1 byte, 1 = 1kbyte)
-**D**
-    Operand size (0 = 16bit, 1 = 32bit)
-**0**
-    Should always be zero.
-**A**
-    Available for system use (always zero).
+* **G**
+   Granularity (0 = 1 byte, 1 = 1kbyte)
+* **D**
+   Operand size (0 = 16bit, 1 = 32bit)
+* **0**
+   Should always be zero.
+* **A**
+   Available for system use (always zero).
 
 To tell the processor where to find our GDT, we have to give it the address of a special pointer structure:
 
-```asm
+```c
 struct gdt_ptr_struct
 {
    u16int limit;               // The upper 16 bits of all selector limits.
@@ -86,7 +86,7 @@ The base is the address of the first entry in our GDT, the limit being the size 
 
 Those struct definitions should go in a header file, descriptor_tables.h, along with a prototype.
 
-```asm
+```c
 // Initialisation function is publicly accessible.
 void init_descriptor_tables();
 ```
@@ -94,7 +94,7 @@ void init_descriptor_tables();
 ### 4.2.2. descriptor_tables.c
 In descriptor_tables.c, we have a few declarations:
 
-```asm
+```c
 //
 // descriptor_tables.c - Initialises the GDT and IDT, and defines the
 // default ISR and IRQ handler.
@@ -120,7 +120,7 @@ idt_ptr_t   idt_ptr;
 
 Notice the gdt_flush function - this will be defined in an ASM file, and will load our GDT pointer for us.
 
-```asm
+```c
 // Initialisation routine - zeroes all the interrupt service routines,
 // initialises the GDT and IDT.
 void init_descriptor_tables()
@@ -164,7 +164,7 @@ gdt_init then sets up the 5 descriptors, by calling gdt_set_gate. gdt_set_gate j
 
 Finally, we have our ASM function that will write the GDT pointer.
 
-```asm
+```x86asm
 [GLOBAL gdt_flush]    ; Allows the C code to call gdt_flush().
 
 gdt_flush:
@@ -194,33 +194,33 @@ The processor will sometimes need to signal your kernel. Something major may hav
 
 The special, CPU-dedicated interrupts are shown below.
 
-0 - Division by zero exception
-1 - Debug exception
-2 - Non maskable interrupt
-3 - Breakpoint exception
-4 - 'Into detected overflow'
-5 - Out of bounds exception
-6 - Invalid opcode exception
-7 - No coprocessor exception
-8 - Double fault (pushes an error code)
-9 - Coprocessor segment overrun
-10 - Bad TSS (pushes an error code)
-11 - Segment not present (pushes an error code)
-12 - Stack fault (pushes an error code)
-13 - General protection fault (pushes an error code)
-14 - Page fault (pushes an error code)
-15 - Unknown interrupt exception
-16 - Coprocessor fault
-17 - Alignment check exception
-18 - Machine check exception
-19-31 - Reserved
+* 0 - Division by zero exception
+* 1 - Debug exception
+* 2 - Non maskable interrupt
+* 3 - Breakpoint exception
+* 4 - 'Into detected overflow'
+* 5 - Out of bounds exception
+* 6 - Invalid opcode exception
+* 7 - No coprocessor exception
+* 8 - Double fault (pushes an error code)
+* 9 - Coprocessor segment overrun
+* 10 - Bad TSS (pushes an error code)
+* 11 - Segment not present (pushes an error code)
+* 12 - Stack fault (pushes an error code)
+* 13 - General protection fault (pushes an error code)
+* 14 - Page fault (pushes an error code)
+* 15 - Unknown interrupt exception
+* 16 - Coprocessor fault
+* 17 - Alignment check exception
+* 18 - Machine check exception
+* 19-31 - Reserved
 
 ## 4.4. The Interrupt Descriptor Table (practice)
 
 ### 4.4.1. descriptor_tables.h
 We should add some definitions to descriptor_tables.h:
 
-```asm
+```c
 // A struct describing an interrupt gate.
 struct idt_entry_struct
 {
@@ -252,7 +252,7 @@ Flags byte formatSee? Very similar to the GDT entry and ptr structs. The flags f
 ### 4.4.2. descriptor_tables.c
 We need to modify this file to add our new code.
 
-```asm
+```c
 ...
 extern void idt_flush(u32int);
 ...
@@ -298,7 +298,7 @@ static void idt_set_gate(u8int num, u32int base, u16int sel, u8int flags)
 
 This gets added to gdt.s also:
 
-```asm
+```x86asm
 [GLOBAL idt_flush]    ; Allows the C code to call idt_flush().
 
 idt_flush:
@@ -316,7 +316,7 @@ Now, just like POSIX signal handlers, you don't get given any information about 
 
 That's all gravy, but unfortunately, we have another problem - some interrupts also push an error code onto the stack. We can't call a common function without a common stack frame, so for those that don't push an error code, we push a dummy one, so the stack is the same.
 
-```asm
+```x86asm
 [GLOBAL isr0]
 isr0:
   cli                 ; Disable interrupts
@@ -327,7 +327,7 @@ isr0:
 
 That sample routine will work, but 32 versions of that still sounds like a lot of code. We can use NASM's macro facility to cut this down, though:
 
-```asm
+```x86asm
 %macro ISR_NOERRCODE 1  ; define a macro, taking one parameter
   [GLOBAL isr%1]        ; %1 accesses the first parameter.
   isr%1:
@@ -348,7 +348,7 @@ That sample routine will work, but 32 versions of that still sounds like a lot o
 
 We can now make a stub handler function just by doing
 
-```asm
+```x86asm
 ISR_NOERRCODE 0
 ISR_NOERRCODE 1
 ...
@@ -360,7 +360,7 @@ _We're almost there, I promise!_
 
 Only 2 more things left to do - one is to create an ASM common handler function. The other is to create a higher-level C handler function.
 
-```asm
+```x86asm
 ; In isr.c
 [EXTERN isr_handler]
 
