@@ -71,7 +71,7 @@ Assembly language examples:
 
 ## Nothing boot loader:
 (Do NOT copy and run)
-```asm
+```x86asm
 ; Start matter
 [BITS 16]       ; Tells the compiler to make this into 16bit code generation
 		            ;  code
@@ -99,7 +99,7 @@ Without this signature the BIOS won't recognise this as a bootable disk!
 I suggest that you don't try this boot loader as it will possibly leave the boot loader and try to run instructions left in the memory.
 
 ## Never ending loop boot sector:
-```asm
+```x86asm
 [BITS 16]     ; 16 bit code
 [ORG 0x7C00]  ; Code origin set to 7C00
 
@@ -123,7 +123,7 @@ This boot loader you can try making and running yourself, won't be very impressi
 I think this example is pretty self explanitory, so onwards to the actual boot loader.
 
 ## Character on the screen boot loader:
-```asm
+```x86asm
 [BITS 16]       ; 16 bit code generation
 [ORG 0x7C00]    ; ORGin location is 7C00
 
@@ -177,7 +177,7 @@ This is either at the start of the boot loader with a jmp instruction used to sk
 Or at the end where the boot loader never gets to.
 (The choice is up to you, but I advise the end as special tables go at the start if you ever get that far in boot loader work)
 
-```asm
+```x86asm
 [BITS 16]       ; 16 bit code generation
 [ORG 0x7C00]	  ; Origin of the program. (Start position)
 
@@ -233,7 +233,7 @@ Whats with the numbers at the end?
 The rest of the code you should recognise or understand from the comments.
 
 ## Displaying the whole string:
-```asm
+```x86asm
 [BITS 16]       ; 16 bit code generation
 [ORG 0x7C00]    ; Origin location
 
@@ -299,7 +299,7 @@ Disassembled of `boot1.asm` (0x1D - 0x27 is 'Hello World'):
 $ ndisasm -b 16 ./boot.o > boot1-dis.asm
 ```
 
-```asm
+```x86asm
 00000000  B80000            mov ax,0x0          ; start at 0x7C00
 00000003  8ED8              mov ds,ax
 00000005  BE1D7C            mov si,0x7c1d
@@ -335,7 +335,7 @@ The last bit was a bit of a jump with loops and things there. So if you want to 
 
 # Bootloader with GNU Assembler (GAS)
 
-```asm
+```x86asm
 /* Bootloader with GAS assembler */
 .code16
 .org 0
@@ -420,7 +420,7 @@ $ ndisasm -b 16 ./bootsect.bin > boot3-dis.asm
 
 `boot3-dis.asm`
 
-```asm
+```x86asm
 00000000  FA                cli
 00000001  8CC8              mov ax,cs
 00000003  8ED8              mov ds,ax
