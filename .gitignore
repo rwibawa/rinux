@@ -55,4 +55,5 @@ dkms.conf
 02-genesis/
 03-the_screen/
 04-gdt_idt/
-05-irqs_and_the_pit
+05-irqs_and_the_pit/
+06-paging/
