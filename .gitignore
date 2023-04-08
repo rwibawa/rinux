@@ -52,6 +52,7 @@ Mkfile.old
 dkms.conf
 
 # sample dirs
-genesis/
-the_screen/
-gdt_idt/
+02-genesis/
+03-the_screen/
+04-gdt_idt/
+05-irqs_and_the_pit
