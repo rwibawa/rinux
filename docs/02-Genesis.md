@@ -1,4 +1,4 @@
-# Genesis
+# 2. Genesis
 
 ## Build
 Install **boch** for the emulator. It's an X11 app.
