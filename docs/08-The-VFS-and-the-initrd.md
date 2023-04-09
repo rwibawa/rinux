@@ -129,7 +129,7 @@ struct dirent *readdir_fs(fs_node_t *node, u32int index);
 fs_node_t *finddir_fs(fs_node_t *node, char *name);
 ```
 
-#### 8.1.2.2. fs.c
+#### 8.1.2.2. `fs.c`
 
 ```c
 // fs.c -- Defines the interface for and structures relating to the virtual file system.
@@ -160,14 +160,16 @@ Believe it or not, that is all the code that is needed to make a simple virtual 
 ## 8.2. The initial ramdisk
 An initial ramdisk is just a filesystem that is loaded into memory when the kernel boots. It is useful for storing drivers and configuration files that are needed before the kernel can access the root filesystem (indeed, it usually contains the driver to access that root filesystem!).
 
-An _initrd_, as they are known, usually uses a propriatary filesystem format. The reason for this is that the most complex thing a filesystem has to handle, _deletion of files_ and _reclaimation_ of space, isn't necessary. The kernel should try to get the root filesystem up and running as quick as possible - why would it want to delete files from the initrd??
+An _initrd_, as they are known, usually uses a proprietary filesystem format. The reason for this is that the most complex thing a filesystem has to handle, _deletion of files_ and _reclaimation_ of space, isn't necessary. The kernel should try to get the root filesystem up and running as quick as possible - why would it want to delete files from the initrd??
 
 As such you can just make a filesystem format up! I've made one for you as well, if you're not feeling very creative ;)
 
 ## 8.3. My own solution
 My format does not support subdirectories. It stores the number of files in the system as the first 4 bytes of the initrd file. That is followed by a set number (64) of header structures, giving the names, offsets and sizes of the files contained. The actual file data follows. I have written a small C program to make this for me: it takes two arguments for each file to add: The path to the file from the current directory and the name to give the file in the generated filesystem.
 
-### 8.3.1. Filesystem generator `make_initrd.c`
+### 8.3.1. Filesystem generator 
+
+`make_initrd.c`
 
 ```c
 #include <stdio.h>
