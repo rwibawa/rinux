@@ -57,3 +57,4 @@ dkms.conf
 04-gdt_idt/
 05-irqs_and_the_pit/
 06-paging/
+07-the_heap/
